@@ -267,16 +267,24 @@ namespace SAHB.GraphQLClient.FieldBuilder
         protected virtual string GetPropertyAlias(PropertyInfo property)
         {
             var aliasAttribute = property.GetCustomAttribute<GraphQLAliasAttribute>();
-            if (aliasAttribute == null)
-                return property.Name;
-
-            return aliasAttribute.Alias;
+            return aliasAttribute?.Alias;
         }
 
         protected virtual IDictionary<string, Type> GetTypes(PropertyInfo property)
         {
+            TypeInfo typeToCheck = null;
+            var type = property.PropertyType.GetTypeInfo();
+            if (type.IsGenericType)
+            {
+                typeToCheck = type.GenericTypeArguments[0].GetTypeInfo();
+            }
+            else
+            {
+                typeToCheck = type;
+            }
+
             // Get GraphQLUnionOrInterfaceAttribute on field and class
-            var attributes = property
+            var attributes = typeToCheck
                 .GetCustomAttributes<GraphQLUnionOrInterfaceAttribute>()
                 .Union(
                     property.PropertyType.GetTypeInfo().GetCustomAttributes<GraphQLUnionOrInterfaceAttribute>());
