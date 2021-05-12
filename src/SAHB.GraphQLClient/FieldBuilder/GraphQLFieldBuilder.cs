@@ -266,7 +266,11 @@ namespace SAHB.GraphQLClient.FieldBuilder
 
         protected virtual string GetPropertyAlias(PropertyInfo property)
         {
-            return property.Name;
+            var aliasAttribute = property.GetCustomAttribute<GraphQLAliasAttribute>();
+            if (aliasAttribute == null)
+                return property.Name;
+
+            return aliasAttribute.Alias;
         }
 
         protected virtual IDictionary<string, Type> GetTypes(PropertyInfo property)
